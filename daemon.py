@@ -10,6 +10,7 @@ daemon_quit = False
 
 #Do not modify or remove this handler
 def quit_gracefully(signum, frame):
+    global daemon_quit
     daemon_quit = True
 
 
