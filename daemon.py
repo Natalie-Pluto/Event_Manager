@@ -25,15 +25,14 @@ def quit_gracefully(signum, frame):
 def add(db_path, data, event, description):
     # File for recording errors produced.
     err_file = open(error_file, "a")
-    # If database does not exist anymore
-    db = open(db_path, "w")
+    db = open(db_path, "a")
     try:
         # If no description
         if len(description) == 0:
-            db.write(data + "," + event + "\n")
+            db.write(data + "," + event)
         else:
             # If there's description
-            db.write(data + "," + event + "," + description + "\n")
+            db.write(data + "," + event + "," + description)
     except OSError:
         err_file.write("Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
     db.close()
