@@ -105,13 +105,11 @@ def run():
             print(commands)
             if not len(commands) == 0:
                 # Get the command type
-                command_type = commands.split("  ")[0]
-                date_str = commands.split("  ")[1]
-                event_str = commands.split("  ")[2]
-                print(event_str)
-                print(len(commands.split("  ")))
-                if len(commands.split("  ")) > 5:
-                    des_str = commands.split("  ")[3]
+                command_type = commands.split(" ")[0]
+                date_str = commands.split(" ")[1]
+                event_str = commands.split(" ")[2]
+                if len(commands.split(" ")) > 3:
+                    des_str = commands.split(" ")[3]
                 else:
                     des_str = ""
                 # Distinguish the command type and conduct the command
