@@ -93,7 +93,9 @@ def run():
         err_file.write("Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
 
     path_file.close()
-
+    # create database
+    db = open(vaild_db_path, "w")
+    db.close()
     # Start the loop
     while not daemon_quit:
         pipe = open(Pipe_Name, "r")
