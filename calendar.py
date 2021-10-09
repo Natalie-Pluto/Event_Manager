@@ -36,7 +36,7 @@ def run():
             if " " in sys.argv[i]:
                 pipe.write('"' + sys.argv[i] + '" ')
             else:
-                pipe.write(sys.argv[i] + "  ")
+                pipe.write(sys.argv[i] + " ")
             i = i + 1
     except OSError:
         sys.stderr.write("Unable to process calendar database\n")

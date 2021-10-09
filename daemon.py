@@ -25,16 +25,16 @@ def quit_gracefully(signum, frame):
 def add(db_path, data, event, description):
     # File for recording errors produced.
     err_file = open(error_file, "a")
-    db = open(db_path, "a")
-    try:
-        # If no description
-        if len(description) == 0:
-            db.write(data + "," + event)
-        else:
-            # If there's description
-            db.write(data + "," + event + "," + description)
-    except OSError:
-        err_file.write("Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
+    with open(db_path, 'a') as db:
+        try:
+            # If no description
+            if len(description) == 0:
+                db.write(data + "," + event)
+            else:
+                # If there's description
+                db.write(data + "," + event + "," + description)
+        except OSError:
+            err_file.write("Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
     db.close()
 
     err_file.close()
@@ -93,7 +93,7 @@ def run():
 
     path_file.close()
     # create database
-    db = open(vaild_db_path, "w")
+    db = open(vaild_db_path, "a")
     db.close()
     # Start the loop
     while not daemon_quit:
@@ -101,16 +101,18 @@ def run():
         try:
             # Read from the pipe file
             commands = pipe.readline()
-            print(commands)
             if not len(commands) == 0:
-                # Get the command type
                 command_type = commands.split(" ")[0]
                 date_str = commands.split(" ")[1]
-                event_str = commands.split(" ")[2]
-                if len(commands.split(" ")) > 3:
-                    des_str = commands.split(" ")[3]
+                if '"' not in commands:
+                    event_str = commands.split(" ")[2]
+                    if len(commands.split(" ")) > 3:
+                        des_str = commands.split(" ")[3]
+                    else:
+                        des_str = ""
+                    print(command_type + event_str + date_str + des_str)
                 else:
-                    des_str = ""
+                    pass
                 # Distinguish the command type and conduct the command
                 if command_type == "ADD":
                     add(vaild_db_path, date_str, event_str, des_str)
