@@ -32,7 +32,6 @@ def run():
         i = 0
         while i < len(sys.argv):
             if sys.argv[i] == "GET":
-                print("yes")
                 get()
             pipe.write(sys.argv[i] + "|")
             i = i + 1

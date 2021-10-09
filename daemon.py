@@ -102,6 +102,7 @@ def run():
         try:
             # Read from the pipe file
             commands = pipe.readline()
+            print(commands)
             if not len(commands) == 0:
                 # Get the command type
                 command_type = commands.split("|")[1]
