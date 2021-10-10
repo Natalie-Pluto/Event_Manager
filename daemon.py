@@ -27,12 +27,20 @@ def add(db_path, data, event, description):
     err_file = open(error_file, "a")
     with open(db_path, 'a') as db:
         try:
-            # If no description
-            if len(description) == 0:
-                db.write(data + "," + event)
+            if os.path.getsize(db_path) > 0:
+                # If no description
+                if len(description) == 0:
+                    db.write("\n" + data + "," + event)
+                else:
+                    # If there's description
+                    db.write("\n" + data + "," + event + "," + description)
             else:
-                # If there's description
-                db.write(data + "," + event + "," + description)
+                # If no description
+                if len(description) == 0:
+                    db.write(data + "," + event)
+                else:
+                    # If there's description
+                    db.write(data + "," + event + "," + description)
         except OSError:
             err_file.write("Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
     db.close()
@@ -72,11 +80,10 @@ def run():
             # If the path provided does not specified the database file,
             # use the default file name 'cald_db.csv'
             if db_path[-1] == "/":
-                default_dbFile = db_path + "/cald_db.csv"
-                vaild_db_path = default_dbFile
-                print("haha")
+                default_dbfile = db_path + "/cald_db.csv"
+                vaild_db_path = default_dbfile
                 # write to calendar link
-                path_file.write(default_dbFile)
+                path_file.write(default_dbfile)
             else:
                 # When the database file name is specified
                 vaild_db_path = db_path
@@ -110,7 +117,7 @@ def run():
                         des_str = commands.split(" ")[3]
                     else:
                         des_str = ""
-                    print(command_type + event_str + date_str + des_str)
+                    #print(command_type + event_str + date_str + des_str)
                 else:
                     pass
                 # Distinguish the command type and conduct the command
