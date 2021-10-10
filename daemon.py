@@ -104,12 +104,12 @@ def run():
                 command_type = commands.split(" ")[0]
                 date_str = commands.split(" ")[1]
                 if '"' not in commands:
-                    event_str = commands.split(" ")[2]
+                    event_str = commands.split(" ")[2].strip()
                     if len(commands.split(" ")) > 3:
-                        des_str = commands.split(" ")[3]
+                        des_str = commands.split(" ")[3].strip()
                     else:
                         des_str = ""
-                    print(command_type + event_str + date_str + des_str)
+                    #print(command_type + event_str + date_str + des_str)
                 else:
                     pass
                 # Distinguish the command type and conduct the command
