@@ -27,20 +27,12 @@ def add(db_path, data, event, description):
     err_file = open(error_file, "a")
     with open(db_path, 'a') as db:
         try:
-            if os.path.getsize(db_path) > 0:
-                # If no description
-                if len(description) == 0:
-                    db.write("\n" + data + "," + event)
-                else:
-                    # If there's description
-                    db.write("\n" + data + "," + event + "," + description)
+            # If no description
+            if len(description) == 0:
+                db.write(data + "," + event + "\n")
             else:
-                # If no description
-                if len(description) == 0:
-                    db.write(data + "," + event)
-                else:
-                    # If there's description
-                    db.write(data + "," + event + "," + description)
+                # If there's description
+                db.write(data + "," + event + "," + description + "\n")
         except OSError:
             err_file.write("Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
     db.close()
@@ -117,7 +109,7 @@ def run():
                         des_str = commands.split(" ")[3]
                     else:
                         des_str = ""
-                    #print(command_type + event_str + date_str + des_str)
+                    print(command_type + event_str + date_str + des_str)
                 else:
                     pass
                 # Distinguish the command type and conduct the command
