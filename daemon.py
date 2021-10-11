@@ -102,7 +102,7 @@ def dele(db_path, date, event, c):
                 e_event = line.split(",")[1].strip()
                 if not (date == e_date and e_event == event):
                     file.write(line)
-
+            file.write(c)
         except OSError:
             err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
     err_file.close()
@@ -177,7 +177,6 @@ def run():
                     upd(vaild_db_path, date_str, event_str, des_str, dess_str)
                 if command_type == "DEL":
                     dele(vaild_db_path, date_str, event_str,commands)
-                    db.write(commands)
                 if command_type == "GET":
                     pass
                 else:
