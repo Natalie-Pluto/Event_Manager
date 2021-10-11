@@ -54,7 +54,7 @@ def path_valid() -> str:
     db_file.close()
     return db_link
 
-'''
+
 def date_compare(date1, date2) -> str:
     # Return "B" for date1 bigger than date2, "S" for date1 smaller than date2, "E" for equal
     day1 = date1.split("-")[0].strip()
@@ -137,7 +137,8 @@ def date_list_sort(date_list1, date_list2):
             i += 1
         j += 1
     for line in date_list1:
-        print(line)
+        if line is not None:
+            print(line)
 
 
 def action_opt(event_date, event_name, event_description):
@@ -189,7 +190,6 @@ def get():
     except OSError:
         sys.stderr.write("Unable to process calendar database\n")
     db_file.close()
-'''
 
 
 def add_error_check():
@@ -269,33 +269,29 @@ def del_error_check():
 
 
 def run():
+    if sys.argv[1].strip() == "GET":
+         get()
+    elif sys.argv[1].strip() == "ADD":
+        add_error_check()
+    elif sys.argv[1].strip() == "UPD":
+        upd_error_check()
+    elif sys.argv[1].strip() == "DEL":
+        del_error_check()
+    else:
+        # Invalid command
+        sys.stderr.write("Multiple errors occur!\n")
+        # Terminate
+        sys.exit()
     pipe = open(Pipe_Name, "a")
     # Write commands into the pipe file
     try:
         # To store the command
         i = 1
         while i < len(sys.argv):
-            if sys.argv[1].strip() == "GET":
-                pass
-                #get()
-            elif sys.argv[1].strip() == "ADD":
-                add_error_check()
-            elif sys.argv[1].strip() == "UPD":
-                upd_error_check()
-            elif sys.argv[1].strip() == "DEL":
-                del_error_check()
-            else:
-                # Invalid command
-                sys.stderr.write("Multiple errors occur!\n")
-                # Terminate
-                sys.exit()
-            pipe.write(sys.argv[i].strip() + " ")
-            '''
             if " " in sys.argv[i]:
                 pipe.write('"' + sys.argv[i] + '" ')
             else:
                 pipe.write(sys.argv[i] + " ")
-            '''
             i = i + 1
     except OSError:
         sys.stderr.write("Unable to process calendar database\n")
