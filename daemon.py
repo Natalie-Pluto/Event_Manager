@@ -54,6 +54,7 @@ def add(db_path, date, event, description):
 
 
 # For UPD command
+'''
 def upd(db_path, date, old_event, new_event, new_des):
     # File for recording errors produced.
     err_file = open(error_file, 'a')
@@ -107,7 +108,7 @@ def dele(db_path, date, event):
             err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
     err_file.close()
     file.close()
-
+'''
 
 def run():
     # store the valid database path
@@ -163,8 +164,6 @@ def run():
             dess_str = ""
             # Read commands from the pipe file
             commands = pipe.readline()
-            print("commands")
-            print("\n")
             if len(commands.split(" ")) >= 4:
                 command_type = commands.split(" ")[0]
                 date_str = commands.split(" ")[1]
@@ -257,9 +256,11 @@ def run():
                 if command_type == "ADD":
                     add(vaild_db_path, date_str, event_str, des_str)
                 if command_type == "UPD":
-                    upd(vaild_db_path, date_str, event_str, des_str, dess_str)
+                    pass
+                    #upd(vaild_db_path, date_str, event_str, des_str, dess_str)
                 if command_type == "DEL":
-                    dele(vaild_db_path, date_str, event_str)
+                    pass
+                    #dele(vaild_db_path, date_str, event_str)
                 if command_type == "GET":
                     pass
                 else:
