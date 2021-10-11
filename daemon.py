@@ -162,13 +162,13 @@ def run():
             if len(commands.split(" ")) >= 4:
                 command_type = commands.split(" ")[0]
                 date_str = commands.split(" ")[1].strip()
-                event_str = commands.split(" ")[2].strip()
+                event_str = '"' + commands.split(" ")[2].strip() + '"'
                 des_str = ""
                 dess_str = ""
                 if len(commands.split(" ")) >= 4:
-                    des_str = commands.split(" ")[3].strip()
+                    des_str = '"' + commands.split(" ")[3].strip() + '"'
                 if len(commands.split(" ")) >= 5:
-                    dess_str = commands.split(" ")[4].strip()
+                    dess_str = '"' + commands.split(" ")[4].strip() + '"'
 
                 # Distinguish the command type and conduct the command
                 if command_type == "ADD":
