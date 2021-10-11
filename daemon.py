@@ -22,32 +22,91 @@ def quit_gracefully(signum, frame):
 
 
 # For ADD command
-def add(db_path, data, event, description):
+def add(db_path, date, event, description):
+    is_event_exists = False
     # File for recording errors produced.
-    err_file = open(error_file, "a")
+    err_file = open(error_file, 'a')
+    check_db = open(db_path, 'r')
     with open(db_path, 'a') as db:
         try:
-            # If no description
-            if len(description) == 0:
-                db.write(data + "," + event + "\n")
-            else:
-                # If there's description
-                db.write(data + "," + event + "," + description + "\n")
+            # Check if the database path is valid
+            if not os.path.isfile(db_path):
+                err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
+                return 0
+            # Check if the event existed already
+            for line in check_db.readlines():
+                e_date = line.split(",")[0].strip()
+                e_event = line.split(",")[1].strip()
+                if date == e_date and e_event == event:
+                    err_file.write("Warning: Event already exist -- " + str(datetime.datetime.now()) + "\n")
+                    is_event_exists = True
+            # If event not exist in db
+            if not is_event_exists:
+                if description == "":
+                    db.write(date + "," + event + "\n")
+                else:
+                    db.write(date + "," + event + "," + description + "\n")
         except OSError:
-            err_file.write("Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
+            err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
     db.close()
-
     err_file.close()
+    check_db.close()
 
 
 # For UPD command
-def upd(db_path):
-    pass
+def upd(db_path, date, old_event, new_event, new_des):
+    # File for recording errors produced.
+    err_file = open(error_file, 'a')
+    with open(db_path, 'r') as file:
+        lines = file.readlines()
+    with open(db_path, 'w') as file:
+        try:
+            # Check if the database path is valid
+            if not os.path.isfile(db_path):
+                err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
+                return 0
+            # Check if the event existed already
+            for line in lines:
+                e_date = line.split(",")[0].strip()
+                e_event = line.split(",")[1].strip()
+                # Find the target event
+                if date == e_date and e_event == old_event:
+                    if new_des == "":
+                        file.write(date + "," + new_event + "\n")
+                    else:
+                        file.write(date + "," + new_event + "," + new_des + "\n")
+                else:
+                    file.write(line)
+
+        except OSError:
+            err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
+    err_file.close()
+    file.close()
 
 
 # For DEL command
-def dele(db_path):
-    pass
+def dele(db_path, date, event):
+    # File for recording errors produced.
+    err_file = open(error_file, 'a')
+    with open(db_path, 'r') as file:
+        lines = file.readlines()
+    with open(db_path, 'w') as file:
+        try:
+            # Check if the database path is valid
+            if not os.path.isfile(db_path):
+                err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
+                return 0
+            # Check if the event existed already
+            for line in lines:
+                e_date = line.split(",")[0].strip()
+                e_event = line.split(",")[1].strip()
+                if not (date == e_date and e_event == event):
+                    file.write(line)
+
+        except OSError:
+            err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
+    err_file.close()
+    file.close()
 
 
 def run():
@@ -88,50 +147,132 @@ def run():
             # write to calendar link
             path_file.write(db_path)
     except OSError:
-        err_file.write("Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
+        err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
 
     path_file.close()
     # create database
     db = open(vaild_db_path, "a")
     db.close()
+    pipe = ""
     # Start the loop
     while not daemon_quit:
         pipe = open(Pipe_Name, "r")
         try:
-            # Read from the pipe file
+            event_str = ""
+            des_str = ""
+            dess_str = ""
+            # Read commands from the pipe file
             commands = pipe.readline()
-            if not len(commands) == 0:
+            if len(commands.split(" ")) >= 4:
                 command_type = commands.split(" ")[0]
                 date_str = commands.split(" ")[1]
+                '''
+                Command format:
+                ADD 19-11-1986 SchoolDay No 
+                or
+                ADD 19-11-1986 SchoolDay 
+                or
+                UPD 19-11-1986 SchoolDay Holiday Yes!
+                '''
                 if '"' not in commands:
                     event_str = commands.split(" ")[2].strip()
-                    if len(commands.split(" ")) > 3:
-                        des_str = commands.split(" ")[3].strip()
-                    else:
-                        des_str = ""
-                    #print(command_type + event_str + date_str + des_str)
+                    des_str = commands.split(" ")[3].strip()
+                    # Description for update command
+                    if len(commands.split(" ")) >= 6:
+                        dess_str = commands.split(" ")[4].strip()
                 else:
-                    pass
+                    '''
+                    Command format:
+                    ADD 19-11-1986 "School Day" "I hate it!"
+                    or
+                    UPD 19-11-1986 "School Day" "Summer Holiday" "Hell Yes!"
+                    or
+                    UPD 19-11-1986 "School Day" "Summer Holiday" Yes
+                    '''
+                    if len(commands.split('" "')) >= 2:
+                        event_str = commands.split('"')[1].strip()
+                        des_str = commands.split('"')[3].strip()
+                        if len(commands.split('"')) >= 7:
+                            dess_str = commands.split('"')[5].strip()
+                        else:
+                            dess_str = commands.split('"')[4].strip()
+                        '''
+                        Command format:
+                        UPD 19-11-1986 SchoolDay "Summer Holiday" "Hell Yes!"
+                        '''
+                        if '"' not in commands.split(" ")[2]:
+                            event_str = commands.split(" ")[2].strip()
+                            if len(commands.split('"')) == 5:
+                                des_str = commands.split('"')[1].strip()
+                                dess_str = commands.split('"')[3].strip()
+
+                    if len(commands.split('" "')) == 1:
+                        '''
+                        Command format:
+                        ADD 19-11-1986 "School Day" No 
+                        or 
+                        ADD 19-11-1986 "School Day"
+                        or
+                        UPD 19-11-1986 "School Day" Holiday "Hell Yes!"
+                        or
+                        UPD 19-11-1986 "School Day" Holiday Yes!
+                        '''
+                        if '"' in commands.split(" ")[2]:
+                            event_str = commands.split('"')[1].strip()
+                            des_str = commands.split('"')[2].strip()
+                            if des_str != "" and command_type == "UPD":
+                                if len(commands.split('"')) == 5:
+                                    dess_str = commands.split('"')[3].strip()
+                                elif len(commands.split('"')) == 3:
+                                    if len(des_str.split(" ")) > 1:
+                                        dess_str = des_str.split(" ")[1].strip()
+                                        des_str = des_str.split(" ")[0].strip()
+                                    else:
+                                        dess_str = ""
+                        else:
+                            '''
+                            ADD 19-11-1986 SchoolDay "I hate it!" 
+                            or
+                            UPD 19-11-1986 SchoolDay "Summer Holiday" Yes
+                            or
+                            UPD 19-11-1986 SchoolDay Holiday "Hell Yes!"
+                            '''
+                            event_str = commands.split(" ")[2].strip()
+                            des_str = commands.split('"')[1].strip()
+                            if command_type == "UPD":
+                                if commands[-2] == '"':
+                                    if len(commands.split(" ")[0].strip(" ")) > 3:
+                                        des_str = commands.split(" ")[3].strip()
+                                        dess_str = commands.split('"')[1].strip()
+                                    else:
+                                        des_str = commands.split('"')[1].strip()
+                                        dess_str = ""
+                                else:
+                                    des_str = commands.split('"')[1].strip()
+                                    dess_str = commands.split('"')[2].strip()
+
                 # Distinguish the command type and conduct the command
                 if command_type == "ADD":
                     add(vaild_db_path, date_str, event_str, des_str)
                 if command_type == "UPD":
-                    upd(vaild_db_path)
+                    upd(vaild_db_path, date_str, event_str, des_str, dess_str)
                 if command_type == "DEL":
-                    dele(vaild_db_path)
+                    dele(vaild_db_path, date_str, event_str)
                 if command_type == "GET":
                     pass
                 else:
-                    err_file.write("Not a valid command! -- " + str(datetime.datetime.now()) + "\n")
+                    err_file.write("Warning: Not a valid command! -- " + str(datetime.datetime.now()) + "\n")
+            else:
+                err_file.write("Warning: Not enough arguments -- " + str(datetime.datetime.now()) + "\n")
+
         except OSError:
-            err_file.write("Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
+            err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
     # Close the file
     pipe.close()
     err_file.close()
 
     # Do not modify or remove this function call
     signal.signal(signal.SIGINT, quit_gracefully)
-
 
 
 if __name__ == '__main__':
