@@ -126,13 +126,14 @@ def date_list_sort(date_list1, date_list2):
     while j < len(date_list1):
         i = j + 1
         while i < len(date_list2):
-            if date_compare(date_list1[j].split(":")[0].strip(), date_list2[i].split(":")[0].strip()) == "B":
-                tmp = date_list1[j]
-                tmp2 = date_list2[i]
-                date_list1[j] = tmp2
-                date_list1[i] = tmp
-                date_list2[j] = tmp2
-                date_list2[i] = tmp
+            if date_list1[j] is not None and date_list2[i] is not None:
+                if date_compare(date_list1[j].split(":")[0].strip(), date_list2[i].split(":")[0].strip()) == "B":
+                    tmp = date_list1[j]
+                    tmp2 = date_list2[i]
+                    date_list1[j] = tmp2
+                    date_list1[i] = tmp
+                    date_list2[j] = tmp2
+                    date_list2[i] = tmp
             i += 1
         j += 1
     for line in date_list1:
@@ -185,8 +186,6 @@ def get():
                 sys.stderr.write("Invalid action option.\n")
         if action_option == "INTERVAL":
             date_list_sort(date_list, date_list2)
-            print(date_list)
-            print(date_list2)
     except OSError:
         sys.stderr.write("Unable to process calendar database\n")
     db_file.close()
