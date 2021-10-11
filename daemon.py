@@ -159,7 +159,6 @@ def run():
         try:
             # Read commands from the pipe file
             commands = pipe.readline().strip()
-            print(len(commands.split(" ")))
             if len(commands.split(" ")) >= 3:
                 command_type = commands.split(" ")[0].strip()
                 date_str = commands.split(" ")[1].strip()
@@ -183,7 +182,8 @@ def run():
                 '''
                 if '"' not in commands:
                     event_str = commands.split(" ")[2].strip()
-                    des_str = commands.split(" ")[3].strip()
+                    if len(commands.split(" ")) >= 4:
+                        des_str = commands.split(" ")[3].strip()
                     # Description for update command
                     if len(commands.split(" ")) >= 5:
                         dess_str = commands.split(" ")[4].strip()
