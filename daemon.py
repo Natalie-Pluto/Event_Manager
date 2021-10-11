@@ -54,7 +54,7 @@ def add(db_path, date, event, description):
 
 
 # For UPD command
-def upd(db_path, date, old_event, new_event, new_des, c):
+def upd(db_path, date, old_event, new_event, new_des):
     # File for recording errors produced.
     err_file = open(error_file, 'a')
     with open(db_path, 'r') as file:
@@ -65,7 +65,6 @@ def upd(db_path, date, old_event, new_event, new_des, c):
             if not os.path.isfile(db_path):
                 err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
                 return 0
-            file.write(c)
             # Check if the event existed already
             for line in lines:
                 e_date = line.split(",")[0].strip()
@@ -86,7 +85,7 @@ def upd(db_path, date, old_event, new_event, new_des, c):
 
 
 # For DEL command
-def dele(db_path, date, event):
+def dele(db_path, date, event, c):
     # File for recording errors produced.
     err_file = open(error_file, 'a')
     with open(db_path, 'r') as file:
@@ -152,14 +151,14 @@ def run():
     path_file.close()
     # create database
     db = open(vaild_db_path, "a")
-    db.close()
+    #db.close()
     pipe = ""
     # Start the loop
     while not daemon_quit:
         pipe = open(Pipe_Name, "r")
         try:
             # Read commands from the pipe file
-            commands = pipe.readline()
+            commands = pipe.readlines()
             if len(commands.split(" ")) >= 4:
                 command_type = commands.split(" ")[0].strip()
                 date_str = commands.split(" ")[1].strip()
@@ -175,9 +174,10 @@ def run():
                 if command_type == "ADD":
                     add(vaild_db_path, date_str, event_str, des_str)
                 if command_type == "UPD":
-                    upd(vaild_db_path, date_str, event_str, des_str, dess_str, commands)
+                    upd(vaild_db_path, date_str, event_str, des_str, dess_str)
                 if command_type == "DEL":
-                    dele(vaild_db_path, date_str, event_str)
+                    dele(vaild_db_path, date_str, event_str,commands)
+                    db.write(commands)
                 if command_type == "GET":
                     pass
                 else:
@@ -190,6 +190,7 @@ def run():
     # Close the file
     pipe.close()
     err_file.close()
+    db.close()
 
     # Do not modify or remove this function call
     signal.signal(signal.SIGINT, quit_gracefully)
