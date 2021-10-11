@@ -191,6 +191,7 @@ def get():
     db_file.close()
 '''
 
+
 def add_error_check():
     error_counter = 0
     # Check the file path
@@ -223,7 +224,7 @@ def upd_error_check():
     if path_valid() == "NA":
         error_counter += 1
     else:
-        db = path_valid().strip()
+        db = path_valid()
     # Check if the event exists
     lines = open(db, 'r')
     for line in lines.readlines():
@@ -270,31 +271,34 @@ def del_error_check():
 def run():
     pipe = open(Pipe_Name, "a")
     # Write commands into the pipe file
-    # To store the command
-    if sys.argv[1].strip() == "GET":
-        pass
-    elif sys.argv[1].strip() == "ADD":
-        add_error_check()
-    elif sys.argv[1].strip() == "UPD":
-        upd_error_check()
-    elif sys.argv[1].strip() == "DEL":
-        del_error_check()
-    else:
-        # Invalid command
-        sys.stderr.write("Multiple errors occur!\n")
-        # Terminate
-        sys.exit()
-    i = 1
-    while i < len(sys.argv):
-        try:
+    try:
+        # To store the command
+        i = 1
+        while i < len(sys.argv):
+            if sys.argv[1].strip() == "GET":
+                pass
+                #get()
+            elif sys.argv[1].strip() == "ADD":
+                add_error_check()
+            elif sys.argv[1].strip() == "UPD":
+                upd_error_check()
+            elif sys.argv[1].strip() == "DEL":
+                del_error_check()
+            else:
+                # Invalid command
+                sys.stderr.write("Multiple errors occur!\n")
+                # Terminate
+                sys.exit()
             pipe.write(sys.argv[i].strip() + " ")
+            '''
             if " " in sys.argv[i]:
                 pipe.write('"' + sys.argv[i] + '" ')
             else:
                 pipe.write(sys.argv[i] + " ")
-        except OSError:
-            sys.stderr.write("Unable to process calendar database\n")
-        i = i + 1
+            '''
+            i = i + 1
+    except OSError:
+        sys.stderr.write("Unable to process calendar database\n")
 
     # Close the file
     pipe.close()
