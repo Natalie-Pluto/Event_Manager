@@ -161,7 +161,7 @@ def run():
             commands = pipe.readline()
             if len(commands.split(" ")) >= 4:
                 command_type = commands.split(" ")[0]
-                date_str = commands.split(" ")[1]
+                date_str = commands.split(" ")[1].strip()
                 event_str = commands.split(" ")[2].strip()
                 des_str = ""
                 dess_str = ""
