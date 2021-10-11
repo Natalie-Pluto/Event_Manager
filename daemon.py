@@ -152,8 +152,7 @@ def run():
     path_file.close()
     # create database
     db = open(vaild_db_path, "a")
-
-    #db.close()
+    db.close()
     pipe = ""
     # Start the loop
     while not daemon_quit:
@@ -161,9 +160,8 @@ def run():
         try:
             # Read commands from the pipe file
             commands = pipe.readline()
-            db.write(commands)
             if len(commands.split(" ")) >= 4:
-                command_type = commands.split(" ")[0]
+                command_type = commands.split(" ")[0].strip()
                 date_str = commands.split(" ")[1].strip()
                 event_str = commands.split(" ")[2].strip()
                 des_str = ""
