@@ -158,31 +158,32 @@ def run():
         pipe = open(Pipe_Name, "r")
         try:
             # Read commands from the pipe file
-            commands = pipe.readline()
-            if len(commands.split(" ")) >= 4:
-                command_type = commands.split(" ")[0].strip()
-                date_str = commands.split(" ")[1].strip()
-                event_str = commands.split(" ")[2].strip()
-                des_str = ""
-                dess_str = ""
+            command = pipe.readlines()
+            for commands in command:
                 if len(commands.split(" ")) >= 4:
-                    des_str = commands.split(" ")[3].strip()
-                if len(commands.split(" ")) >= 5:
-                    dess_str = commands.split(" ")[4].strip()
+                    command_type = commands.split(" ")[0].strip()
+                    date_str = commands.split(" ")[1].strip()
+                    event_str = commands.split(" ")[2].strip()
+                    des_str = ""
+                    dess_str = ""
+                    if len(commands.split(" ")) >= 4:
+                        des_str = commands.split(" ")[3].strip()
+                    if len(commands.split(" ")) >= 5:
+                        dess_str = commands.split(" ")[4].strip()
 
-                # Distinguish the command type and conduct the command
-                if command_type == "ADD":
-                    add(vaild_db_path, date_str, event_str, des_str)
-                if command_type == "UPD":
-                    upd(vaild_db_path, date_str, event_str, des_str, dess_str)
-                if command_type == "DEL":
-                    dele(vaild_db_path, date_str, event_str,commands)
-                if command_type == "GET":
-                    pass
+                    # Distinguish the command type and conduct the command
+                    if command_type == "ADD":
+                        add(vaild_db_path, date_str, event_str, des_str)
+                    if command_type == "UPD":
+                        upd(vaild_db_path, date_str, event_str, des_str, dess_str)
+                    if command_type == "DEL":
+                        dele(vaild_db_path, date_str, event_str, commands)
+                    if command_type == "GET":
+                        pass
+                    else:
+                        err_file.write("Warning: Not a valid command! -- " + str(datetime.datetime.now()) + "\n")
                 else:
-                    err_file.write("Warning: Not a valid command! -- " + str(datetime.datetime.now()) + "\n")
-            else:
-                err_file.write("Warning: Not enough arguments -- " + str(datetime.datetime.now()) + "\n")
+                    err_file.write("Warning: Not enough arguments -- " + str(datetime.datetime.now()) + "\n")
 
         except OSError:
             err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")

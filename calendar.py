@@ -159,20 +159,20 @@ def run():
         # To store the command
         i = 1
         while i < len(sys.argv):
-            if sys.argv[1] == "GET":
+            if sys.argv[1].strip() == "GET":
                 get()
-            elif sys.argv[1] == "ADD":
+            elif sys.argv[1].strip() == "ADD":
                 add_error_check()
-            elif sys.argv[1] == "UPD":
+            elif sys.argv[1].strip() == "UPD":
                 upd_error_check()
-            elif sys.argv[1] == "DEL":
+            elif sys.argv[1].strip() == "DEL":
                 del_error_check()
             else:
                 # Invalid command
                 sys.stderr.write("Multiple errors occur!\n")
                 # Terminate
                 sys.exit()
-            pipe.write(sys.argv[i] + " ")
+            pipe.write(sys.argv[i].strip() + " ")
             '''
             if " " in sys.argv[i]:
                 pipe.write('"' + sys.argv[i] + '" ')
