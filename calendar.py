@@ -97,7 +97,7 @@ def date_opt(event_date, event_name, event_description):
         else:
             # Check if the event is on this day
             if date == event_date:
-                print(event_date + " : " + event_name + ":" + event_description)
+                print(event_date + " : " + event_name + " : " + event_description)
 
 
 def interval_opt(event_date, event_name, event_description) -> str:
@@ -113,11 +113,11 @@ def interval_opt(event_date, event_name, event_description) -> str:
         sys.exit()
     # Store date of events
     if date_compare(start_date, event_date) == "S" and date_compare(end_date, event_date) == "B":
-        return event_date + " : " + event_name + ":" + event_description
+        return event_date + " : " + event_name + " : " + event_description
     elif date_compare(start_date, event_date) == "E" and date_compare(end_date, event_date) == "B":
-        return event_date + " : " + event_name + ":" + event_description
+        return event_date + " : " + event_name + " : " + event_description
     elif date_compare(start_date, event_date) == "S" and date_compare(end_date, event_date) == "E":
-        return event_date + " : " + event_name + ":" + event_description
+        return event_date + " : " + event_name + " : " + event_description
 
 
 def date_list_sort(date_list1, date_list2):
@@ -148,7 +148,7 @@ def action_opt(event_date, event_name, event_description):
         name = sys.argv[i].strip()
         # Check if the event is on this day
         if event_name.startswith(name):
-            print(event_date + " : " + event_name + ":" + event_description)
+            print(event_date + " : " + event_name + " : " + event_description)
         i += 1
 
 
@@ -162,7 +162,6 @@ def get():
         db = path_valid().strip()
     # open and read the database
     db_file = open(db, 'r')
-    db_file2 = open(db, 'r')
     # Get action option
     action_option = sys.argv[2]
     date_list = []
@@ -187,6 +186,7 @@ def get():
             date_list_sort(date_list, date_list2)
     except OSError:
         sys.stderr.write("Unable to process calendar database\n")
+    db_file.close()
 
 
 def add_error_check():
@@ -269,22 +269,22 @@ def run():
     pipe = open(Pipe_Name, "a")
     # Write commands into the pipe file
     try:
-        if sys.argv[1].strip() == "GET":
-            get()
-        elif sys.argv[1].strip() == "ADD":
-            add_error_check()
-        elif sys.argv[1].strip() == "UPD":
-            upd_error_check()
-        elif sys.argv[1].strip() == "DEL":
-            del_error_check()
-        else:
-            # Invalid command
-            sys.stderr.write("Multiple errors occur!\n")
-            # Terminate
-            sys.exit()
         # To store the command
         i = 1
         while i < len(sys.argv):
+            if sys.argv[1].strip() == "GET":
+                get()
+            elif sys.argv[1].strip() == "ADD":
+                add_error_check()
+            elif sys.argv[1].strip() == "UPD":
+                upd_error_check()
+            elif sys.argv[1].strip() == "DEL":
+                del_error_check()
+            else:
+                # Invalid command
+                sys.stderr.write("Multiple errors occur!\n")
+                # Terminate
+                sys.exit()
             pipe.write(sys.argv[i].strip() + " ")
             if " " in sys.argv[i]:
                 pipe.write('"' + sys.argv[i] + '" ')
