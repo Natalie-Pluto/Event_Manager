@@ -98,6 +98,7 @@ def date_opt(event_date, event_name, event_description):
             # Check if the event is on this day
             if date == event_date:
                 print(event_date + " : " + event_name + " : " + event_description)
+        i += 1
 
 
 def interval_opt(event_date, event_name, event_description) -> str:
@@ -184,6 +185,8 @@ def get():
                 sys.stderr.write("Invalid action option.\n")
         if action_option == "INTERVAL":
             date_list_sort(date_list, date_list2)
+            print(date_list)
+            print(date_list2)
     except OSError:
         sys.stderr.write("Unable to process calendar database\n")
     db_file.close()
