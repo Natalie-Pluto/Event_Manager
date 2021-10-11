@@ -102,7 +102,6 @@ def dele(db_path, date, event, c):
                 e_event = line.split(",")[1].strip()
                 if not (date == e_date and e_event == event):
                     file.write(line)
-            file.write(c)
         except OSError:
             err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
     err_file.close()
@@ -151,7 +150,7 @@ def run():
     path_file.close()
     # create database
     db = open(vaild_db_path, "a")
-    #db.close()
+    db.close()
     pipe = ""
     # Start the loop
     while not daemon_quit:
@@ -277,7 +276,6 @@ def run():
     # Close the file
     pipe.close()
     err_file.close()
-    db.close()
 
     # Do not modify or remove this function call
     signal.signal(signal.SIGINT, quit_gracefully)
