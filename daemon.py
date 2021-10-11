@@ -93,7 +93,6 @@ def dele(db_path, date, event, c):
         lines = file.readlines()
     with open(db_path, 'w') as file:
         try:
-            file.write(c)
             # Check if the database path is valid
             if not os.path.isfile(db_path):
                 err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
@@ -103,7 +102,7 @@ def dele(db_path, date, event, c):
                 e_date = line.split(",")[0].strip()
                 e_event = line.split(",")[1].strip()
                 if not (date == e_date and e_event == event):
-                    file.write(line)
+                    file.write(c)
 
         except OSError:
             err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
