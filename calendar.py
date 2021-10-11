@@ -54,7 +54,7 @@ def path_valid() -> str:
     db_file.close()
     return db_link
 
-
+'''
 def date_compare(date1, date2) -> str:
     # Return "B" for date1 bigger than date2, "S" for date1 smaller than date2, "E" for equal
     day1 = date1.split("-")[0].strip()
@@ -189,7 +189,7 @@ def get():
     except OSError:
         sys.stderr.write("Unable to process calendar database\n")
     db_file.close()
-
+'''
 
 def add_error_check():
     error_counter = 0
