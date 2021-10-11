@@ -172,7 +172,7 @@ def run():
                 sys.stderr.write("Multiple errors occur!\n")
                 # Terminate
                 sys.exit()
-            pipe.write(sys.argv[i] + "|")
+            pipe.write(sys.argv[i] + " ")
             '''
             if " " in sys.argv[i]:
                 pipe.write('"' + sys.argv[i] + '" ')

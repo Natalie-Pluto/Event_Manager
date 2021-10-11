@@ -159,16 +159,16 @@ def run():
         try:
             # Read commands from the pipe file
             commands = pipe.readline()
-            if len(commands.split("|")) >= 4:
-                command_type = commands.split("|")[0]
-                date_str = commands.split("|")[1]
-                event_str = commands.split("|")[2]
+            if len(commands.split(" ")) >= 4:
+                command_type = commands.split(" ")[0]
+                date_str = commands.split(" ")[1]
+                event_str = commands.split(" ")[2]
                 des_str = ""
                 dess_str = ""
-                if len(commands.split("|")) >= 4:
-                    des_str = commands.split("|")[3]
-                if len(commands.split("|")) >= 5:
-                    dess_str = commands.split("|")[4]
+                if len(commands.split(" ")) >= 4:
+                    des_str = commands.split(" ")[3]
+                if len(commands.split(" ")) >= 5:
+                    dess_str = commands.split(" ")[4]
 
                 # Distinguish the command type and conduct the command
                 if command_type == "ADD":
