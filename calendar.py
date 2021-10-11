@@ -125,7 +125,7 @@ def date_list_sort(date_list1, date_list2):
     while j < len(date_list1):
         i = j + 1
         while i < len(date_list2):
-            if date_compare(date_list1[j].split(":")[0].strip(), date_list2[i]).split(":")[0].strip() == "B":
+            if date_compare(date_list1[j].split(":")[0].strip(), date_list2[i].split(":")[0].strip()) == "B":
                 tmp = date_list1[j]
                 tmp2 = date_list2[i]
                 date_list1[j] = tmp2
@@ -268,31 +268,31 @@ def del_error_check():
 def run():
     pipe = open(Pipe_Name, "a")
     # Write commands into the pipe file
-    try:
-        # To store the command
-        i = 1
-        while i < len(sys.argv):
-            if sys.argv[1].strip() == "GET":
-                get()
-            elif sys.argv[1].strip() == "ADD":
-                add_error_check()
-            elif sys.argv[1].strip() == "UPD":
-                upd_error_check()
-            elif sys.argv[1].strip() == "DEL":
-                del_error_check()
-            else:
-                # Invalid command
-                sys.stderr.write("Multiple errors occur!\n")
-                # Terminate
-                sys.exit()
+    # To store the command
+    if sys.argv[1].strip() == "GET":
+        get()
+    elif sys.argv[1].strip() == "ADD":
+        add_error_check()
+    elif sys.argv[1].strip() == "UPD":
+        upd_error_check()
+    elif sys.argv[1].strip() == "DEL":
+        del_error_check()
+    else:
+        # Invalid command
+        sys.stderr.write("Multiple errors occur!\n")
+        # Terminate
+        sys.exit()
+    i = 1
+    while i < len(sys.argv):
+        try:
             pipe.write(sys.argv[i].strip() + " ")
             if " " in sys.argv[i]:
                 pipe.write('"' + sys.argv[i] + '" ')
             else:
                 pipe.write(sys.argv[i] + " ")
-            i = i + 1
-    except OSError:
-        sys.stderr.write("Unable to process calendar database\n")
+        except OSError:
+            sys.stderr.write("Unable to process calendar database\n")
+        i = i + 1
 
     # Close the file
     pipe.close()
