@@ -158,7 +158,7 @@ def run():
         pipe = open(Pipe_Name, "r")
         try:
             # Read commands from the pipe file
-            commands = pipe.readlines()
+            commands = pipe.readline()
             if len(commands.split(" ")) >= 4:
                 command_type = commands.split(" ")[0].strip()
                 date_str = commands.split(" ")[1].strip()
