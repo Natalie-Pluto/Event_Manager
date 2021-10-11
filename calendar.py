@@ -272,7 +272,7 @@ def run():
     # Write commands into the pipe file
     # To store the command
     if sys.argv[1].strip() == "GET":
-        get()
+        pass
     elif sys.argv[1].strip() == "ADD":
         add_error_check()
     elif sys.argv[1].strip() == "UPD":
