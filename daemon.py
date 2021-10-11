@@ -163,7 +163,8 @@ def run():
             dess_str = ""
             # Read commands from the pipe file
             commands = pipe.readline()
-            print(commands+ "\n")
+            print(commands)
+            print("\n")
             if len(commands.split(" ")) >= 4:
                 command_type = commands.split(" ")[0]
                 date_str = commands.split(" ")[1]

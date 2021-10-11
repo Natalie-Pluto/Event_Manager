@@ -93,7 +93,7 @@ def upd_error_check():
     # Check if the event exists
     lines = open(db, 'r')
     for line in lines.readlines():
-        if line.split(",")[1] == sys.argv[3] and line.split(",")[0] == sys.argv[2]:
+        if line.split(",")[1].strip() == sys.argv[3] and line.split(",")[0].strip() == sys.argv[2]:
             if_event_exist = True
     if not if_event_exist:
         sys.stderr.write("Unable to update, event does not exist\n")
