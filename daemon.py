@@ -86,7 +86,7 @@ def upd(db_path, date, old_event, new_event, new_des, c):
 
 
 # For DEL command
-def dele(db_path, date, event, c):
+def dele(db_path, date, event):
     # File for recording errors produced.
     err_file = open(error_file, 'a')
     with open(db_path, 'r') as file:
@@ -102,7 +102,7 @@ def dele(db_path, date, event, c):
                 e_date = line.split(",")[0].strip()
                 e_event = line.split(",")[1].strip()
                 if not (date == e_date and e_event == event):
-                    file.write(c)
+                    file.write(line)
 
         except OSError:
             err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
@@ -152,7 +152,8 @@ def run():
     path_file.close()
     # create database
     db = open(vaild_db_path, "a")
-    db.close()
+
+    #db.close()
     pipe = ""
     # Start the loop
     while not daemon_quit:
@@ -160,6 +161,7 @@ def run():
         try:
             # Read commands from the pipe file
             commands = pipe.readline()
+            db.write(commands)
             if len(commands.split(" ")) >= 4:
                 command_type = commands.split(" ")[0]
                 date_str = commands.split(" ")[1].strip()
@@ -177,7 +179,7 @@ def run():
                 if command_type == "UPD":
                     upd(vaild_db_path, date_str, event_str, des_str, dess_str, commands)
                 if command_type == "DEL":
-                    dele(vaild_db_path, date_str, event_str, commands)
+                    dele(vaild_db_path, date_str, event_str)
                 if command_type == "GET":
                     pass
                 else:
