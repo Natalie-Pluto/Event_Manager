@@ -126,7 +126,7 @@ def run():
     # If the path for the database is specified:
     try:
         if len(sys.argv) != 1:
-            db_path = sys.argv[1]
+            db_path = sys.argv[1].strip()
             # If the path provided does not specified the database file,
             # use the default file name 'cald_db.csv'
             if db_path[-1] == "/":
@@ -158,32 +158,119 @@ def run():
         pipe = open(Pipe_Name, "r")
         try:
             # Read commands from the pipe file
-            command = pipe.readlines()
-            for commands in command:
+            commands = pipe.readline().strip()
+            print(len(commands.split(" ")))
+            if len(commands.split(" ")) >= 3:
+                command_type = commands.split(" ")[0].strip()
+                date_str = commands.split(" ")[1].strip()
+                event_str = commands.split(" ")[2].strip()
+                des_str = ""
+                dess_str = ""
+                '''
                 if len(commands.split(" ")) >= 4:
-                    command_type = commands.split(" ")[0].strip()
-                    date_str = commands.split(" ")[1].strip()
+                    des_str = commands.split(" ")[3].strip()
+                if len(commands.split(" ")) >= 5:
+                    dess_str = commands.split(" ")[4].strip()
+                '''
+
+                '''
+                Command format:
+                ADD 19-11-1986 SchoolDay No 
+                or
+                ADD 19-11-1986 SchoolDay 
+                or
+                UPD 19-11-1986 SchoolDay Holiday Yes!
+                '''
+                if '"' not in commands:
                     event_str = commands.split(" ")[2].strip()
-                    des_str = ""
-                    dess_str = ""
-                    if len(commands.split(" ")) >= 4:
-                        des_str = commands.split(" ")[3].strip()
+                    des_str = commands.split(" ")[3].strip()
+                    # Description for update command
                     if len(commands.split(" ")) >= 5:
                         dess_str = commands.split(" ")[4].strip()
-
-                    # Distinguish the command type and conduct the command
-                    if command_type == "ADD":
-                        add(vaild_db_path, date_str, event_str, des_str)
-                    if command_type == "UPD":
-                        upd(vaild_db_path, date_str, event_str, des_str, dess_str)
-                    if command_type == "DEL":
-                        dele(vaild_db_path, date_str, event_str, commands)
-                    if command_type == "GET":
-                        pass
-                    else:
-                        err_file.write("Warning: Not a valid command! -- " + str(datetime.datetime.now()) + "\n")
                 else:
-                    err_file.write("Warning: Not enough arguments -- " + str(datetime.datetime.now()) + "\n")
+                    '''
+                    Command format:
+                    ADD 19-11-1986 "School Day" "I hate it!"
+                    or
+                    UPD 19-11-1986 "School Day" "Summer Holiday" "Hell Yes!"
+                    or
+                    UPD 19-11-1986 "School Day" "Summer Holiday" Yes
+                    '''
+                    if len(commands.split('" "')) >= 2:
+                        event_str = commands.split('"')[1].strip()
+                        des_str = commands.split('"')[3].strip()
+                        if len(commands.split('"')) >= 7:
+                            dess_str = commands.split('"')[5].strip()
+                        else:
+                            dess_str = commands.split('"')[4].strip()
+                        '''
+                        Command format:
+                        UPD 19-11-1986 SchoolDay "Summer Holiday" "Hell Yes!"
+                        '''
+                        if '"' not in commands.split(" ")[2]:
+                            event_str = commands.split(" ")[2].strip()
+                            if len(commands.split('"')) == 5:
+                                des_str = commands.split('"')[1].strip()
+                                dess_str = commands.split('"')[3].strip()
+
+                    if len(commands.split('" "')) == 1:
+                        '''
+                        Command format:
+                        ADD 19-11-1986 "School Day" No 
+                        or 
+                        ADD 19-11-1986 "School Day"
+                        or
+                        UPD 19-11-1986 "School Day" Holiday "Hell Yes!"
+                        or
+                        UPD 19-11-1986 "School Day" Holiday Yes!
+                        '''
+                        if '"' in commands.split(" ")[2]:
+                            event_str = commands.split('"')[1].strip()
+                            des_str = commands.split('"')[2].strip()
+                            if des_str != "" and command_type == "UPD":
+                                if len(commands.split('"')) == 5:
+                                    dess_str = commands.split('"')[3].strip()
+                                elif len(commands.split('"')) == 3:
+                                    if len(des_str.split(" ")) > 1:
+                                        dess_str = des_str.split(" ")[1].strip()
+                                        des_str = des_str.split(" ")[0].strip()
+                                    else:
+                                        dess_str = ""
+                        else:
+                            '''
+                            ADD 19-11-1986 SchoolDay "I hate it!" 
+                            or
+                            UPD 19-11-1986 SchoolDay "Summer Holiday" Yes
+                            or
+                            UPD 19-11-1986 SchoolDay Holiday "Hell Yes!"
+                            '''
+                            event_str = commands.split(" ")[2].strip()
+                            des_str = commands.split('"')[1].strip()
+                            if command_type == "UPD":
+                                if commands[-1] == '"':
+                                    if len(commands.split(" ")[0].strip(" ")) > 3:
+                                        des_str = commands.split(" ")[3].strip()
+                                        dess_str = commands.split('"')[1].strip()
+                                    else:
+                                        des_str = commands.split('"')[1].strip()
+                                        dess_str = ""
+                                else:
+                                    des_str = commands.split('"')[1].strip()
+                                    dess_str = commands.split('"')[2].strip()
+
+                # Distinguish the command type and conduct the command
+                if command_type == "ADD":
+                    add(vaild_db_path, date_str, event_str, des_str)
+                if command_type == "UPD":
+                    upd(vaild_db_path, date_str, event_str, des_str, dess_str)
+                if command_type == "DEL":
+                    dele(vaild_db_path, date_str, event_str,commands)
+                if command_type == "GET":
+                    pass
+                else:
+                    err_file.write("Warning: Not a valid command! -- " + str(datetime.datetime.now()) + "\n")
+            else:
+                err_file.write("Warning: Not enough arguments -- " + str(datetime.datetime.now()) + "\n")
 
         except OSError:
             err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
