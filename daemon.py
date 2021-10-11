@@ -164,12 +164,6 @@ def run():
                 event_str = commands.split(" ")[2].strip()
                 des_str = ""
                 dess_str = ""
-                '''
-                if len(commands.split(" ")) >= 4:
-                    des_str = commands.split(" ")[3].strip()
-                if len(commands.split(" ")) >= 5:
-                    dess_str = commands.split(" ")[4].strip()
-                '''
 
                 '''
                 Command format:
