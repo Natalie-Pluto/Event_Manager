@@ -54,7 +54,6 @@ def add(db_path, date, event, description):
 
 
 # For UPD command
-'''
 def upd(db_path, date, old_event, new_event, new_des):
     # File for recording errors produced.
     err_file = open(error_file, 'a')
@@ -72,10 +71,7 @@ def upd(db_path, date, old_event, new_event, new_des):
                 e_event = line.split(",")[1].strip()
                 # Find the target event
                 if date == e_date and e_event == old_event:
-                    if new_des == "":
-                        file.write(date + "," + new_event + "\n")
-                    else:
-                        file.write(date + "," + new_event + "," + new_des + "\n")
+                    file.write(date + "," + new_event + "," + new_des + "\n")
                 else:
                     file.write(line)
 
@@ -108,7 +104,7 @@ def dele(db_path, date, event):
             err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
     err_file.close()
     file.close()
-'''
+
 
 def run():
     # store the valid database path
@@ -256,11 +252,9 @@ def run():
                 if command_type == "ADD":
                     add(vaild_db_path, date_str, event_str, des_str)
                 if command_type == "UPD":
-                    pass
-                    #upd(vaild_db_path, date_str, event_str, des_str, dess_str)
+                    upd(vaild_db_path, date_str, event_str, des_str, dess_str)
                 if command_type == "DEL":
-                    pass
-                    #dele(vaild_db_path, date_str, event_str)
+                    dele(vaild_db_path, date_str, event_str)
                 if command_type == "GET":
                     pass
                 else:
