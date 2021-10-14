@@ -7,19 +7,6 @@ Pipe_Name = "/tmp/cald_pipe"
 # Where the path of the database stored
 cal_link = "/tmp/calendar_link"
 
-'''
-JUSTIFICATION:
-Multiple Errors ->
-1. If there is error not specified in the spec, print "Multiple errors occur!"
-2. There are multiple errors occurred -> Print individual error first, in the end print "Multiple errors occur!"
-
-For 2, I can't find any confirmation on Ed, there are some posts about it but they all got no reply. I will assume that 
-we need to print individual error first, then in the end print "Multiple errors occur!". 
-
-I'm really worry that the private testcase will only print "Multiple errors occur!" without other individual error msgs.
-If it is the case... HELP! ;-;
-'''
-
 
 # Check if the date is valid
 def date_format_check(date) -> bool:
@@ -44,17 +31,17 @@ def path_valid() -> str:
         db_link = db_file.readline()
         # Test if an index file or the database file exist
         if not os.path.isfile(db_link):
-            # Print error msg to stderr
-            sys.stderr.write("Unable to process calendar database\n")
             return "NA"
     except OSError:
-        # Print error msg to stderr
-        sys.stderr.write("Unable to process calendar database\n")
         return "NA"
     db_file.close()
     return db_link
 
 
+'''
+This is a method to compare time,
+I wrote this because I thought we can't use datetime module at first.
+'''
 def date_compare(date1, date2) -> str:
     # Return "B" for date1 bigger than date2, "S" for date1 smaller than date2, "E" for equal
     day1 = date1.split("-")[0].strip()
@@ -80,7 +67,17 @@ def date_compare(date1, date2) -> str:
             else:
                 return "E"
 
-
+'''
+If more than one arg:
+The output will be order by the order of args: 
+(calendar GET DATE 09-01-2020 09-01-1999)
+09-01-2020 : School Day : NO
+09-01-2020 : Party : Yay!
+09-01-2020 : Dentist : NO!
+09-01-1999 : Exam : NO
+09-01-1999 : Holiday : YES
+09-01-1999 : Birthday : Yay!
+'''
 def date_opt(event_date, event_name, event_description):
     # If no date provided
     if len(sys.argv) < 4:
@@ -102,6 +99,10 @@ def date_opt(event_date, event_name, event_description):
 
 
 def interval_opt(event_date, event_name, event_description) -> str:
+    # Check enough argument
+    if len(sys.argv) < 5:
+        sys.stderr.write("Not enough arguments given\n")
+        sys.exit()
     start_date = sys.argv[3]
     end_date = sys.argv[4]
     # Check date
@@ -121,12 +122,15 @@ def interval_opt(event_date, event_name, event_description) -> str:
         return event_date + " : " + event_name + " : " + event_description
 
 
+'''
+This is a method to sort the result list by date.
+'''
 def date_list_sort(date_list1, date_list2):
     j = 0
     while j < len(date_list1):
         i = j + 1
         while i < len(date_list2):
-            if date_list1[j] is not None and date_list2[i] is not None:
+            if date_list1[j] and date_list2[i]:
                 if date_compare(date_list1[j].split(":")[0].strip(), date_list2[i].split(":")[0].strip()) == "B":
                     tmp = date_list1[j]
                     tmp2 = date_list2[i]
@@ -140,27 +144,82 @@ def date_list_sort(date_list1, date_list2):
         if line is not None:
             print(line)
 
+'''
+If only one arg:
+The output will be ordered by date.
+If more than one arg:
+The output will be order by event name (as the order of args) and then order by date:
+(calendar GET NAME "School Day" Exam)
+09-01-2020 : School Day : NO
+09-01-2021 : School Day : NO
+09-01-2022 : School Day : NO
+09-01-2020 : Exam : NO
+09-01-2021 : Exam : NO
+09-01-2022 : Exam : NO
+'''
+def name_opt1(db):
+    date_list1 = []
+    date_list2 = []
 
-def action_opt(event_date, event_name, event_description):
     # Check enough argument
     if len(sys.argv) < 4:
         sys.stderr.write("Please specify an argument\n")
         sys.exit()
+
+    # open and read the
+    # database
     i = 3
     while i < len(sys.argv):
         name = sys.argv[i].strip()
-        # Check if the event is on this day
-        if event_name.startswith(name):
-            print(event_date + " : " + event_name + " : " + event_description)
-        i += 1
+        db_file = open(db, 'r')
+        try:
+            for line in db_file.readlines():
+                # If line is not empty
+                if not line == '\n':
+                    # Get date, event and description
+                    # Note: According what I mentioned in the daemon.py
+                    '''
+                    If the event or description string contains comma, it will be stored with double quotes in the database.
+                    19-11-1920,"Pizza Day, cancelled",sad
+                    19-11-1920,SummerHoliday,"sleeping, working"
+                    '''
+                    # Event and description string may contains comma therefore has quotes around them
+                    event_date = line.split(",")[0].strip()
+                    event_name = line.split(",")[1].strip()
+                    event_description = ""
+                    if '"' in line:
+                        if len(line.split('"')) > 3:
+                            event_name = line.split('"')[1].strip()
+                            event_description = line.split('"')[3].strip()
+                        elif len(line.split('"')) == 3 and '"' in line.split(",")[1]:
+                            event_name = line.split('"')[1].strip()
+                            if line.split('"')[2].strip():
+                                event_description = line.split('",')[1].strip()
+                        elif len(line.split('"')) == 3 and '"' not in line.split(",")[1]:
+                            event_description = line.split('"')[1].strip()
+                    else:
+                        if len(line.split(",")) >= 3:
+                            event_description = line.split(",")[2].strip()
+                    # Check if the event is on this day
+                    if event_name.startswith(name):
+                        date_list1.append(event_date + " : " + event_name + " : " + event_description)
+                        date_list2.append(event_date + " : " + event_name + " : " + event_description)
+            # Sort the list and print out
+            date_list_sort(date_list1, date_list2)
+            date_list1.clear()
+            date_list2.clear()
+            i += 1
+        except OSError:
+            sys.stderr.write("Unable to process calendar database\n")
+            sys.exit()
+        db_file.close()
 
 
 def get():
-    error_counter = 0
-    db = ""
     # Check the file path
     if path_valid() == "NA":
-        error_counter += 1
+        sys.stderr.write("Unable to process calendar database\n")
+        sys.exit()
     else:
         db = path_valid().strip()
     # open and read the database
@@ -171,48 +230,95 @@ def get():
     date_list2 = []
     try:
         for line in db_file.readlines():
-            event_date = line.split(",")[0].strip()
-            event_name = line.split(",")[1].strip()
-            event_description = ""
-            if len(line.split(",")) >= 3:
-                event_description = line.split(",")[2].strip()
-            if action_option == "DATE":
-                date_opt(event_date, event_name, event_description)
-            elif action_option == "INTERVAL":
-                date_list.append(interval_opt(event_date, event_name, event_description))
-                date_list2.append(interval_opt(event_date, event_name, event_description))
-            elif action_option == "NAME":
-                action_opt(event_date, event_name, event_description)
-            else:
-                sys.stderr.write("Invalid action option.\n")
+            # If line is not empty
+            if not line == '\n':
+                # Get date, event and description
+                # Note: According what I mentioned in the daemon.py
+                '''
+                If the event or description string contains comma, it will be stored with double quotes in the database.
+                19-11-1920,"Pizza Day, cancelled",sad
+                19-11-1920,SummerHoliday,"sleeping, working"
+                '''
+                # Event and description string may contains comma therefore has quotes around them
+                event_date = line.split(",")[0].strip()
+                event_name = line.split(",")[1].strip()
+                event_description = ""
+                if '"' in line:
+                    if len(line.split('"')) > 3:
+                        event_name = line.split('"')[1].strip()
+                        event_description = line.split('"')[3].strip()
+                    elif len(line.split('"')) == 3 and '"' in line.split(",")[1]:
+                        event_name = line.split('"')[1].strip()
+                        if line.split('"')[2].strip():
+                            event_description = line.split('",')[1].strip()
+                    elif len(line.split('"')) == 3 and '"' not in line.split(",")[1]:
+                        event_description = line.split('"')[1].strip()
+                else:
+                    if len(line.split(",")) >= 3:
+                        event_description = line.split(",")[2].strip()
+
+                if action_option == "DATE":
+                    date_opt(event_date, event_name, event_description)
+                elif action_option == "INTERVAL":
+                    date_list.append(interval_opt(event_date, event_name, event_description))
+                    date_list2.append(interval_opt(event_date, event_name, event_description))
+                elif action_option == "NAME":
+                    pass
+                else:
+                    sys.stderr.write("Invalid action option.\n")
+                    sys.exit()
+
+        # The output of his action need to be sorted in a way so it needs to be implement in a different way
+        if action_option == "NAME":
+            name_opt1(db)
+        # Sort and return the result
         if action_option == "INTERVAL":
             date_list_sort(date_list, date_list2)
+
     except OSError:
         sys.stderr.write("Unable to process calendar database\n")
+        sys.exit()
     db_file.close()
 
 
 def add_error_check():
     error_counter = 0
+    date_error = False
+    name_error = False
+    path_error = False
     # Check the file path
     if path_valid() == "NA":
+        path_error = True
         error_counter += 1
+
     # Check the date
     if len(sys.argv) >= 3:
         if not date_format_check(sys.argv[2]):
-            sys.stderr.write("Unable to parse date\n")
+            date_error = True
             error_counter += 1
+    # Date is not given
     else:
-        sys.stderr.write("Unable to parse date\n")
+        date_error = True
         error_counter += 1
+
     # Check enough argument
     if len(sys.argv) < 4:
-        sys.stderr.write("Missing event name\n")
+        name_error = True
         error_counter += 1
+
     # Check if there are multiple errors happened
-    if error_counter > 1:
+    if error_counter == 1:
+        if date_error:
+            sys.stderr.write("Unable to parse date\n")
+            sys.exit()
+        elif name_error:
+            sys.stderr.write("Missing event name\n")
+            sys.exit()
+        elif path_error:
+            sys.stderr.write("Unable to process calendar database\n")
+            sys.exit()
+    elif error_counter > 1:
         sys.stderr.write("Multiple errors occur!\n")
-    if error_counter > 0:
         sys.exit()
 
 
@@ -220,57 +326,138 @@ def upd_error_check():
     db = ""
     error_counter = 0
     if_event_exist = False
+    if_updated_exist = False
+    path_error = False
+    event_error = False
+    updated_error = False
+    date_error = False
+    arg_error = False
+
     # Check the file path
     if path_valid() == "NA":
+        path_error = True
         error_counter += 1
     else:
         db = path_valid()
+
     # Check if the event exists
     lines = open(db, 'r')
-    for line in lines.readlines():
-        if line.split(",")[1].strip() == sys.argv[3] and line.split(",")[0].strip() == sys.argv[2]:
-            if_event_exist = True
-    if not if_event_exist:
-        sys.stderr.write("Unable to update, event does not exist\n")
-        error_counter += 1
+    try:
+        # Check if the event to be update exist
+        for line in lines.readlines():
+            if not line == '\n':
+                if '"' in line:
+                    if line.split('"')[1].strip() == sys.argv[3] and line.split(",")[0].strip() == sys.argv[2]:
+                        if_event_exist = True
+                else:
+                    if line.split(",")[1].strip() == sys.argv[3] and line.split(",")[0].strip() == sys.argv[2]:
+                        if_event_exist = True
+                '''
+                [This is not addressed in the assignment spec but I feel like it is an error case]
+                Check if the updated event existed in the database to avoid duplicate. 
+                '''
+                if '"' in line:
+                    if line.split('"')[1].strip() == sys.argv[4] and line.split(",")[0].strip() == sys.argv[2]:
+                        if_updated_exist = True
+                else:
+                    if line.split(",")[1].strip() == sys.argv[4] and line.split(",")[0].strip() == sys.argv[2]:
+                        if_updated_exist = True
+
+        # Event to be updated does not exist
+        if not if_event_exist:
+            event_error = True
+            error_counter += 1
+
+        # Update event existed already
+        if if_updated_exist:
+            updated_error = True
+            error_counter += 1
+
+    except OSError:
+        path_error = True
     lines.close()
+
     # Check the date
     if len(sys.argv) >= 3:
         if not date_format_check(sys.argv[2]):
-            sys.stderr.write("Unable to parse date\n")
+            path_error = True
             error_counter += 1
+
     # Check enough argument
     if len(sys.argv) < 5:
-        sys.stderr.write("Not enough arguments given\n")
+        arg_error = True
         error_counter += 1
+
     # Check if there are multiple errors happened
-    if error_counter > 1:
+    if error_counter == 1:
+        if path_error:
+            sys.stderr.write("Unable to process calendar database\n")
+            sys.exit()
+        elif date_error:
+            sys.stderr.write("Unable to parse date\n")
+            sys.exit()
+        elif event_error:
+            sys.stderr.write("Unable to update, event does not exist\n")
+            sys.exit()
+        # This error is when the updated event already existed in the database therefore will create duplicate
+        # Print "Multiple errors occur!" because according to the asm spec,
+        # error which is not addressed should be printed as "Multiple errors occur!"
+        elif updated_error:
+            sys.stderr.write("Multiple errors occur!\n")
+            sys.exit()
+        elif arg_error:
+            sys.stderr.write("Not enough arguments given\n")
+            sys.exit()
+    elif error_counter > 1:
         sys.stderr.write("Multiple errors occur!\n")
-    if error_counter > 0:
         sys.exit()
 
 
 def del_error_check():
+    errorCounter = 0
+    path_error = False
+    date_error = False
+    event_error = False
+
     # Check the file path
     if path_valid() == "NA":
-        sys.exit()
+        path_error = True
+        errorCounter += 1
+
     # Check the date
     if len(sys.argv) >= 3:
         if not date_format_check(sys.argv[2]):
-            sys.stderr.write("Unable to parse date\n")
-            sys.exit()
+            date_error = True
+            errorCounter += 1
+    # No date is given
     else:
-        sys.stderr.write("Unable to parse date\n")
-        sys.exit()
+        date_error = True
+        errorCounter += 1
+
     # Check enough argument
     if len(sys.argv) < 4:
-        sys.stderr.write("Missing event name\n")
+        event_error = True
+        errorCounter += 1
+
+    if errorCounter == 1:
+        if path_error:
+            sys.stderr.write("Unable to process calendar database\n")
+            sys.exit()
+        elif date_error:
+            sys.stderr.write("Unable to parse date\n")
+            sys.exit()
+        elif event_error:
+            sys.stderr.write("Missing event name\n")
+            sys.exit()
+    elif errorCounter > 1:
+        sys.stderr.write("Multiple errors occur!\n")
         sys.exit()
 
 
 def run():
     if sys.argv[1].strip() == "GET":
-         get()
+        get()
+        sys.exit()
     elif sys.argv[1].strip() == "ADD":
         add_error_check()
     elif sys.argv[1].strip() == "UPD":
@@ -283,6 +470,7 @@ def run():
         # Terminate
         sys.exit()
     pipe = open(Pipe_Name, "a")
+
     # Write commands into the pipe file
     try:
         # To store the command

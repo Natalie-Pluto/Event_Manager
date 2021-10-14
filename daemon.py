@@ -20,7 +20,11 @@ def quit_gracefully(signum, frame):
     global daemon_quit
     daemon_quit = True
 
-
+'''
+If the event or description string contains comma, it will be stored with double quotes in the database.
+19-11-1920,"Pizza Day, cancelled",sad
+19-11-1920,SummerHoliday,"sleeping, working"
+'''
 # For ADD command
 def add(db_path, date, event, description):
     is_event_exists = False
@@ -43,9 +47,19 @@ def add(db_path, date, event, description):
             # If event not exist in db
             if not is_event_exists:
                 if description == "":
-                    db.write(date + "," + event + "\n")
+                    if "," in event:
+                        db.write(date + "," + '"' + event + '"' + "\n")
+                    else:
+                        db.write(date + "," + event + "\n")
                 else:
-                    db.write(date + "," + event + "," + description + "\n")
+                    if "," in event and "," not in description:
+                        db.write(date + "," + '"' + event + '"' + "," + description + "\n")
+                    elif "," in description and "," not in event:
+                        db.write(date + "," + event + "," + '"' + description + '"' + "\n")
+                    elif "," in event and "," in description:
+                        db.write(date + "," + '"' + event + '"' + "," + '"' + description + '"' + "\n")
+                    else:
+                        db.write(date + "," + event + "," + description + "\n")
         except OSError:
             err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
     db.close()
@@ -67,16 +81,31 @@ def upd(db_path, date, old_event, new_event, new_des):
                 return 0
             # Check if the event existed already
             for line in lines:
-                e_date = line.split(",")[0].strip()
-                e_event = line.split(",")[1].strip()
-                # Find the target event
-                if date == e_date and e_event == old_event:
-                    if new_des == "":
-                        file.write(date + "," + new_event + "\n")
+                # Skip the empty lines
+                if not line == '\n':
+                    e_date = line.split(",")[0].strip()
+                    if '"' in line:
+                        e_event = line.split('"')[1].strip()
                     else:
-                        file.write(date + "," + new_event + "," + new_des + "\n")
-                else:
-                    file.write(line)
+                        e_event = line.split(",")[1].replace('"', "").strip()
+                    # Find the target event
+                    if date == e_date and e_event == old_event:
+                        if new_des == "":
+                            if "," in new_event:
+                                file.write(date + "," + '"' + new_event + '"' + "\n")
+                            else:
+                                file.write(date + "," + new_event + "\n")
+                        else:
+                            if "," in new_event and "," not in new_des:
+                                file.write(date + "," + '"' + new_event + '"' + "," + new_des + "\n")
+                            elif "," in new_des and "," not in new_event:
+                                file.write(date + "," + new_event + "," + '"' + new_des + '"' + "\n")
+                            elif "," in new_event and "," in new_des:
+                                file.write(date + "," + '"' + new_event + '"' + "," + '"' + new_des + '"' + "\n")
+                            else:
+                                file.write(date + "," + new_event + "," + new_des + "\n")
+                    else:
+                        file.write(line)
 
         except OSError:
             err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
@@ -85,7 +114,7 @@ def upd(db_path, date, old_event, new_event, new_des):
 
 
 # For DEL command
-def dele(db_path, date, event, c):
+def dele(db_path, date, event):
     # File for recording errors produced.
     err_file = open(error_file, 'a')
     with open(db_path, 'r') as file:
@@ -98,10 +127,15 @@ def dele(db_path, date, event, c):
                 return 0
             # Check if the event existed already
             for line in lines:
-                e_date = line.split(",")[0].strip()
-                e_event = line.split(",")[1].strip()
-                if not (date == e_date and e_event == event):
-                    file.write(line)
+                # Skip the empty lines
+                if not line == '\n':
+                    e_date = line.split(",")[0].strip()
+                    if '"' in line:
+                        e_event = line.split('"')[1].strip()
+                    else:
+                        e_event = line.split(",")[1].strip()
+                    if not (date == e_date and e_event == event):
+                        file.write(line)
         except OSError:
             err_file.write("Warning: Unable to process calendar database -- " + str(datetime.datetime.now()) + "\n")
     err_file.close()
@@ -164,7 +198,6 @@ def run():
                 event_str = commands.split(" ")[2].strip()
                 des_str = ""
                 dess_str = ""
-
                 '''
                 Command format:
                 ADD 19-11-1986 SchoolDay No 
@@ -257,7 +290,7 @@ def run():
                 if command_type == "UPD":
                     upd(vaild_db_path, date_str, event_str, des_str, dess_str)
                 if command_type == "DEL":
-                    dele(vaild_db_path, date_str, event_str,commands)
+                    dele(vaild_db_path, date_str, event_str)
                 if command_type == "GET":
                     pass
                 else:
