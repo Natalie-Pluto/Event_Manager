@@ -39,11 +39,16 @@ def add(db_path, date, event, description):
                 return 0
             # Check if the event existed already
             for line in check_db.readlines():
-                e_date = line.split(",")[0].strip()
-                e_event = line.split(",")[1].strip()
-                if date == e_date and e_event == event:
-                    err_file.write("Warning: Event already exist -- " + str(datetime.datetime.now()) + "\n")
-                    is_event_exists = True
+                if not line == '\n':
+                    e_date = line.split(",")[0].strip()
+                    if '"' in line:
+                        e_event = line.split('"')[1].strip()
+                    else:
+                        e_event = line.split(",")[1].replace('"', "").strip()
+
+                    if date == e_date and e_event == event:
+                        err_file.write("Warning: Event already exist -- " + str(datetime.datetime.now()) + "\n")
+                        is_event_exists = True
             # If event not exist in db
             if not is_event_exists:
                 if description == "":
