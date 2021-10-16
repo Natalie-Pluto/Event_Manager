@@ -473,7 +473,7 @@ def run():
         sys.stderr.write("Multiple errors occur!\n")
         # Terminate
         sys.exit()
-    pipe = open(Pipe_Name, "a")
+    pipe = open(Pipe_Name, "w")
 
     # Write commands into the pipe file
     try:
