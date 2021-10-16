@@ -4,6 +4,10 @@ import os
 import sys
 import datetime
 
+'''
+A readme file is available.
+'''
+
 # Use this variable for your loop
 daemon_quit = False
 # pipe file

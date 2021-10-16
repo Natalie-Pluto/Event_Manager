@@ -2,6 +2,10 @@ import os
 import sys
 import datetime
 
+'''
+A readme file is available.
+'''
+
 # Named pipe within /tmp named cald_pipe
 Pipe_Name = "/tmp/cald_pipe"
 # Where the path of the database stored
