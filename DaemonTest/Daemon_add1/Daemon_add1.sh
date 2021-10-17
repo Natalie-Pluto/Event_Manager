@@ -14,3 +14,5 @@ then
 else
   echo PASSED
 fi
+
+rm add1.csv

@@ -45,10 +45,10 @@ def add(db_path, date, event, description):
             for line in check_db.readlines():
                 if not line == '\n':
                     e_date = line.split(",")[0].strip()
-                    if '"' in line:
+                    if '"' in line.split(",")[1].strip():
                         e_event = line.split('"')[1].strip()
                     else:
-                        e_event = line.split(",")[1].replace('"', "").strip()
+                        e_event = line.split(",")[1].strip()
 
                     if date == e_date and e_event == event:
                         err_file.write("Warning: Event already exist -- " + str(datetime.datetime.now()) + "\n")
@@ -93,10 +93,10 @@ def upd(db_path, date, old_event, new_event, new_des):
                 # Skip the empty lines
                 if not line == '\n':
                     e_date = line.split(",")[0].strip()
-                    if '"' in line:
+                    if '"' in line.split(",")[1].strip():
                         e_event = line.split('"')[1].strip()
                     else:
-                        e_event = line.split(",")[1].replace('"', "").strip()
+                        e_event = line.split(",")[1].strip()
                     # Find the target event
                     if date == e_date and e_event == old_event:
                         if new_des == "":
@@ -139,7 +139,7 @@ def dele(db_path, date, event):
                 # Skip the empty lines
                 if not line == '\n':
                     e_date = line.split(",")[0].strip()
-                    if '"' in line:
+                    if '"' in line.split(",")[1].strip():
                         e_event = line.split('"')[1].strip()
                     else:
                         e_event = line.split(",")[1].strip()
@@ -214,6 +214,8 @@ def run():
                 ADD 19-11-1986 SchoolDay 
                 or
                 UPD 19-11-1986 SchoolDay Holiday Yes!
+                or
+                UPD 19-11-1986 SchoolDay Holiday
                 '''
                 if '"' not in commands:
                     event_str = commands.split(" ")[2].strip()
@@ -278,12 +280,14 @@ def run():
                             UPD 19-11-1986 SchoolDay "Summer Holiday" Yes
                             or
                             UPD 19-11-1986 SchoolDay Holiday "Hell Yes!"
+                            or
+                            UPD 19-11-1986 SchoolDay "Holiday Day"
                             '''
                             event_str = commands.split(" ")[2].strip()
                             des_str = commands.split('"')[1].strip()
                             if command_type == "UPD":
                                 if commands[-1] == '"':
-                                    if len(commands.split(" ")[0].strip(" ")) > 3:
+                                    if len(commands.split('"')[0].split(" ")) > 4:
                                         des_str = commands.split(" ")[3].strip()
                                         dess_str = commands.split('"')[1].strip()
                                     else:

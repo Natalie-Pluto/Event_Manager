@@ -92,13 +92,18 @@ def date_opt(event_date, event_name, event_description):
     while i < len(sys.argv):
         date = sys.argv[i].strip()
         # Check if the date is valid
+        # Program will terminate immediately once an invalid date is determined.
+        # If there are more dates provided after, these dates will be ignored
         if not date_format_check(date):
             sys.stderr.write("Unable to parse date\n")
             sys.exit()
         else:
             # Check if the event is on this day
             if date == event_date:
-                print(event_date + " : " + event_name + " : " + event_description)
+                if event_description != "":
+                    print(event_date + " : " + event_name + " : " + event_description)
+                else:
+                    print(event_date + " : " + event_name + " :")
         i += 1
 
 
@@ -119,11 +124,20 @@ def interval_opt(event_date, event_name, event_description) -> str:
         sys.exit()
     # Store date of events
     if date_compare(start_date, event_date) == "S" and date_compare(end_date, event_date) == "B":
-        return event_date + " : " + event_name + " : " + event_description
+        if event_description != "":
+            return event_date + " : " + event_name + " : " + event_description
+        else:
+            return event_date + " : " + event_name + " :"
     elif date_compare(start_date, event_date) == "E" and date_compare(end_date, event_date) == "B":
-        return event_date + " : " + event_name + " : " + event_description
+        if event_description != "":
+            return event_date + " : " + event_name + " : " + event_description
+        else:
+            return event_date + " : " + event_name + " :"
     elif date_compare(start_date, event_date) == "S" and date_compare(end_date, event_date) == "E":
-        return event_date + " : " + event_name + " : " + event_description
+        if event_description != "":
+            return event_date + " : " + event_name + " : " + event_description
+        else:
+            return event_date + " : " + event_name + " :"
 
 
 '''
@@ -306,7 +320,7 @@ def add_error_check():
         error_counter += 1
 
     # Check enough argument
-    if len(sys.argv) < 4:
+    if len(sys.argv) == 3:
         name_error = True
         error_counter += 1
 
@@ -345,46 +359,53 @@ def upd_error_check():
         db = path_valid()
 
     # Check if the event exists
-    lines = open(db, 'r')
-    try:
-        # Check if the event to be update exist
-        for line in lines.readlines():
-            if not line == '\n':
-                if '"' in line:
-                    if line.split('"')[1].strip() == sys.argv[3] and line.split(",")[0].strip() == sys.argv[2]:
-                        if_event_exist = True
-                else:
-                    if line.split(",")[1].strip() == sys.argv[3] and line.split(",")[0].strip() == sys.argv[2]:
-                        if_event_exist = True
-                '''
-                [This is not addressed in the assignment spec but I feel like it is an error case]
-                Check if the updated event existed in the database to avoid duplicate. 
-                '''
-                if '"' in line:
-                    if line.split('"')[1].strip() == sys.argv[4] and line.split(",")[0].strip() == sys.argv[2]:
-                        if_updated_exist = True
-                else:
-                    if line.split(",")[1].strip() == sys.argv[4] and line.split(",")[0].strip() == sys.argv[2]:
-                        if_updated_exist = True
+    if not path_error:
+        lines = open(db, 'r')
+        try:
+            if len(sys.argv) > 4:
+                # Check if the event to be update exist
+                for line in lines.readlines():
+                    if not line == '\n':
+                        if '"' in line.split(",")[1].strip():
+                            if line.split('"')[1].strip() == sys.argv[3] and line.split(",")[0].strip() == sys.argv[2]:
+                                if_event_exist = True
+                        else:
+                            if line.split(",")[1].strip() == sys.argv[3] and line.split(",")[0].strip() == sys.argv[2]:
+                                if_event_exist = True
+                        '''
+                        [This is not addressed in the assignment spec but I feel like it is an error case]
+                        Check if the updated event existed in the database to avoid duplicate. 
+                        '''
+                        if '"' in line.split(",")[1].strip():
+                            if line.split('"')[1].strip() == sys.argv[4] and line.split(",")[0].strip() == sys.argv[2]:
+                                if_updated_exist = True
+                        else:
+                            if line.split(",")[1].strip() == sys.argv[4] and line.split(",")[0].strip() == sys.argv[2]:
+                                if_updated_exist = True
 
-        # Event to be updated does not exist
-        if not if_event_exist:
-            event_error = True
-            error_counter += 1
+            # Event to be updated does not exist
+            if not if_event_exist and len(sys.argv) > 4:
+                event_error = True
+                error_counter += 1
 
-        # Update event existed already
-        if if_updated_exist:
-            updated_error = True
-            error_counter += 1
+            # Update event existed already
+            if if_updated_exist:
+                updated_error = True
+                error_counter += 1
 
-    except OSError:
-        path_error = True
-    lines.close()
+        except OSError:
+            path_error = True
+        lines.close()
 
     # Check the date
+    '''
+    Justification:
+    I think this error will never be printed to stderr because an invalid date  leads to event not exist. Hence,
+    the output will always be "Multiple errors occur!"
+    '''
     if len(sys.argv) >= 3:
         if not date_format_check(sys.argv[2]):
-            path_error = True
+            date_error = True
             error_counter += 1
 
     # Check enough argument
@@ -459,6 +480,11 @@ def del_error_check():
 
 
 def run():
+    if len(sys.argv) < 2:
+        # No command type provided
+        sys.stderr.write("Multiple errors occur!\n")
+        # Terminate
+        sys.exit()
     if sys.argv[1].strip() == "GET":
         get()
         sys.exit()
