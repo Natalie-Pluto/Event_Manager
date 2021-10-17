@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Use calendar.py to write to pipe file
 # Use calendar.py to write to pipe file (all possible format)
 python3 /Users/natalielu/Desktop/INFO1112/Asm2/cald/calendar.py ADD 20-01-1986 "School Day" "Hell Yes!"
 python3 /Users/natalielu/Desktop/INFO1112/Asm2/cald/calendar.py ADD 07-10-2005 "Pizza Day" Nat
@@ -14,12 +15,12 @@ python3 /Users/natalielu/Desktop/INFO1112/Asm2/cald/calendar.py ADD 13-05-1996 "
 python3 /Users/natalielu/Desktop/INFO1112/Asm2/cald/calendar.py ADD 17-11-2016 "Cooking class, started"
 python3 /Users/natalielu/Desktop/INFO1112/Asm2/cald/calendar.py ADD 06-10-2020 "Tea Day, Monday"
 python3 /Users/natalielu/Desktop/INFO1112/Asm2/cald/calendar.py ADD 09-10-2020 "Yoga Day, Monday" "tired, fun"
+python3 /Users/natalielu/Desktop/INFO1112/Asm2/cald/calendar.py GET NAME "Nat's Birthday" 2>> error.csv
+python3 /Users/natalielu/Desktop/INFO1112/Asm2/cald/calendar.py GET NAME 2>> error.csv
+rm db.csv
+python3 /Users/natalielu/Desktop/INFO1112/Asm2/cald/calendar.py GET NAME "Pizza Day" 2>> error.csv
 
-python3 /Users/natalielu/Desktop/INFO1112/Asm2/cald/calendar.py GET NAME "School Day" >> get6.csv
-python3 /Users/natalielu/Desktop/INFO1112/Asm2/cald/calendar.py GET NAME "School" >> get6.csv
-python3 /Users/natalielu/Desktop/INFO1112/Asm2/cald/calendar.py GET NAME "Cat" >> get6.csv
-
-num=$(ps | grep 'Calendar_get6' | grep -v 'grep' | cut -c 1-6)
+num=$(ps | grep 'Calendar_get8' | grep -v 'grep' | cut -c 1-6)
 
 # Get the pid of the Daemon.py and kill it
 set -- $num

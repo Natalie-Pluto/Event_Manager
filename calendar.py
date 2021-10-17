@@ -220,8 +220,12 @@ def name_opt1(db):
                             event_description = line.split(",")[2].strip()
                     # Check if the event is on this day
                     if event_name.startswith(name):
-                        date_list1.append(event_date + " : " + event_name + " : " + event_description)
-                        date_list2.append(event_date + " : " + event_name + " : " + event_description)
+                        if event_description != "":
+                            date_list1.append(event_date + " : " + event_name + " : " + event_description)
+                            date_list2.append(event_date + " : " + event_name + " : " + event_description)
+                        else:
+                            date_list1.append(event_date + " : " + event_name + " :")
+                            date_list2.append(event_date + " : " + event_name + " :")
             # Sort the list and print out
             date_list_sort(date_list1, date_list2)
             date_list1.clear()

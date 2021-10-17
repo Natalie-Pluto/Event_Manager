@@ -13,3 +13,5 @@ if [ -s /Users/natalielu/Desktop/INFO1112/Asm2/cald/DaemonTest/Daemon_defaultPat
   else
     echo FAILED
 fi
+
+rm cald_db.csv

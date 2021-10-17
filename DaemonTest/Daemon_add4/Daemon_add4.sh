@@ -23,5 +23,7 @@ else
   fi
 fi
 
+rm add4.csv
+
 
 

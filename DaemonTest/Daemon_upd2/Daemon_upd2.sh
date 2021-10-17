@@ -13,3 +13,5 @@ then
 else
   echo PASSED
 fi
+
+rm upd2.csv

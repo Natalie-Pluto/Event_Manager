@@ -16,3 +16,5 @@ then
 else
   echo PASSED
 fi
+
+rm del3.csv

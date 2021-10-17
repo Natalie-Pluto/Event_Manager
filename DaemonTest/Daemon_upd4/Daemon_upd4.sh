@@ -14,3 +14,4 @@ else
   echo PASSED
 fi
 
+rm upd4.csv

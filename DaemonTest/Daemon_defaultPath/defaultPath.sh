@@ -7,4 +7,4 @@ num=$(ps | grep 'Daemon_defaultPath' | grep -v 'grep' | cut -c 1-6)
 # Get the pid of the Daemon.py and kill it
 set -- $num
 kill $2
-sleep 1./
+sleep 1

@@ -13,3 +13,5 @@ if [ -s /Users/natalielu/Desktop/INFO1112/Asm2/cald/cald_db.csv ]
   else
     echo FAILED
 fi
+
+rm /Users/natalielu/Desktop/INFO1112/Asm2/cald/cald_db.csv

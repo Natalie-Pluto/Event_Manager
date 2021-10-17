@@ -12,3 +12,5 @@ if [ -s /Users/natalielu/Desktop/INFO1112/Asm2/cald/DaemonTest/Daemon_path/path.
   else
     echo FAILED
 fi
+
+rm /Users/natalielu/Desktop/INFO1112/Asm2/cald/DaemonTest/Daemon_path/path.csv
