@@ -213,3 +213,13 @@ If failed:
 FAILED
 [1]+  Done                    ./Daemon_add1.sh
 ```
+
+## **Installation package**
+
+Ran out of time, didn't figure out this. 
+
+Creating a daemon package
+
+`newapkbuild -c calApp`
+
+
